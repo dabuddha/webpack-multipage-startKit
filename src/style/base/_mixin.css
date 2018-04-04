@@ -1,0 +1,18 @@
+@define-mixin ellipsisWebKit $fontSize, $lineHeight, $lines {
+  display: block;
+  display: -webkit-box;
+  height: $fontSize*$lineHeight*$lines;
+  margin: 0 auto;
+  font-size: $fontSize;
+  line-height: $lineHeight;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@define-mixin textEllipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

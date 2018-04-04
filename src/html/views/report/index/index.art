@@ -1,0 +1,10 @@
+<% var data = {
+  title: "Project Title"
+}; %>
+<% include('../../../includes/header.art', data) %>
+
+<main class="main">
+  <h1>It Works!</h1>
+</main>
+
+<% include('../../../includes/footer.art', data) %>

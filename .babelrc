@@ -1,0 +1,14 @@
+{
+  "presets": [
+    [
+      "env",
+      {
+        "uglify": true,
+        "modules": false,
+        "useBuiltIns": false
+      }
+    ]
+  ],
+  "plugins": ["transform-runtime"],
+  "ignore": ["/node_modules/"]
+}

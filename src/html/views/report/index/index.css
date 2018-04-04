@@ -1,0 +1,5 @@
+@import "../../../../style/common.css";
+body {
+  box-sizing: border-box;
+  box-shadow: 0 0 3px #000;
+}

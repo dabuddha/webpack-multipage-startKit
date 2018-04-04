@@ -17,6 +17,5 @@ fs.createWriteStream(`${path}/index.art`)
 fs.createWriteStream(`${path}/index.js`)
 fs.createWriteStream(`${path}/index.css`)
 
-fs.writeFileSync(`${path}/index.js`, "import './index.css'\n")
-fs.writeFileSync(`${path}/index.css`, "@import '../../../../style/common.css';")
+fs.writeFileSync(`${path}/index.js`, "import '@/style/common.css'\n" + "import './index.css'\n")
 console.log('创建成功')

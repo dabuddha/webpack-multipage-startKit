@@ -2,6 +2,7 @@
 * Modern JavaScript (eslint, babel)
 * PostCSS
 
+```
 .
 ├── README.md
 ├── createPage.js
@@ -44,7 +45,7 @@
 ├── test.js
 ├── webpack.config.js
 └── yarn.lock
-
+```
 
 ## Installation
 > yarn

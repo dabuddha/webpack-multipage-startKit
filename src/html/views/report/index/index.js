@@ -1,2 +1,1 @@
-import './index.css'
-console.log('hahaha')
+import './index.css';

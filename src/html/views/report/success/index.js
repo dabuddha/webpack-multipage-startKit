@@ -1,2 +1,2 @@
-import '@/style/common.css'
-import './index.css'
+import '@/style/common.css';
+import './index.css';

@@ -8,7 +8,7 @@
     "dev": "webpack-dev-server --host 0.0.0.0 --env.mode='development'",
     "dev:https": "webpack-dev-server --host 0.0.0.0 --https --env.mode='development'",
     "watch": "webpack --env.mode='development' --watch",
-    "build": "webpack --mode --env.mode='production'",
+    "build": "webpack --env.mode='production'",
     "postbuild": "html dist/*.html --indent-size 2"
   },
   "dependencies": {

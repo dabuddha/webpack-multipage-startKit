@@ -32,7 +32,7 @@ function generateHtmlPlugins (templateDir) {
     }
     if (name in entries(templateDir)) {
       conf.inject = 'body'
-      conf.chunks = ['common', 'vendor', name]
+      conf.chunks = ['common', 'vendor', 'basic', name]
     }
     return new HtmlWebpackPlugin(conf)
   })
@@ -46,7 +46,9 @@ module.exports = (env, options) => {
   process.env.mode = mode
   return {
     mode,
-    entry: entries('./src/html/views'),
+    entry: Object.assign(entries('./src/html/views'), {
+      'basic': './src/js/default.js'
+    }),
     output: {
       path: path.resolve(__dirname, './dist'),
       filename: './js/[name].[chunkhash:8].js',
@@ -153,6 +155,25 @@ module.exports = (env, options) => {
       new FriendlyErrorsWebpackPlugin({
         compilationSuccessInfo: {
           messages: [https ? `Your website is running here: https://localhost:8080` : `Your website is running here: http://localhost:8080`]
+        }
+      }),
+      new webpack.optimize.SplitChunksPlugin({
+        chunks: "async",
+        cacheGroups: {
+          commons: {
+            name: "commons",
+            chunks: "initial",
+            minChunks: 2
+          },
+          vendors: {
+              test: /[\\/]node_modules[\\/]/,
+              priority: -10
+          },
+          default: {
+              minChunks: 2,
+              priority: -20,
+              reuseExistingChunk: true
+          }
         }
       }),
       new ExtractTextPlugin({

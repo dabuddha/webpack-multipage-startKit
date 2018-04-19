@@ -1,4 +1,4 @@
-import fs from 'fs';
+const fs = require('fs');
 
 const base = './src/html/views/';
 const reg = /(\w|\d)*\/(\w|\d)*/;

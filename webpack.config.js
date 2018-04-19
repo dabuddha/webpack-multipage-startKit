@@ -32,7 +32,7 @@ function generateHtmlPlugins (templateDir) {
     }
     if (name in entries(templateDir)) {
       conf.inject = 'body'
-      conf.chunks = ['common', 'vendor', 'basic', name]
+      conf.chunks = ['basic', 'common', 'vendor', name]
     }
     return new HtmlWebpackPlugin(conf)
   })

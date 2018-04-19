@@ -14,7 +14,7 @@ if (!reg.test(args[0])) {
 const path = `${base}${args[0]}`;
 
 fs.mkdirSync(path);
-fs.createWriteStream(`${path}/index.art`);
+fs.copyFileSync('./_template/default.art' ,`${path}/index.art`)
 fs.createWriteStream(`${path}/index.js`);
 fs.createWriteStream(`${path}/index.css`);
 

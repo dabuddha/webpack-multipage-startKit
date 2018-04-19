@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>任务</title>
+    <% include('../../../includes/head/MobileHead.art') %>
+  </head>
+<body>
+  
+</body>
+</html>

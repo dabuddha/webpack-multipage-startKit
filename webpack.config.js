@@ -160,6 +160,12 @@ module.exports = (env, options) => {
           messages: [https ? `Your website is running here: https://localhost:8080` : `Your website is running here: http://localhost:8080`]
         }
       }),
+      new webpack.DefinePlugin({
+        'process.env': {
+          mode: JSON.stringify(mode),
+          NODE_ENV: JSON.stringify(mode),
+        },
+      }),
       new webpack.optimize.SplitChunksPlugin({
         chunks: "async",
         cacheGroups: {

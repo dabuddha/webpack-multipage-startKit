@@ -44,8 +44,6 @@ const htmlPlugins = generateHtmlPlugins('./src/html/views')
 module.exports = (env, options) => {
   const mode = options.env.mode
   const https = options.https
-  process.env.mode = mode
-  process.env.NODE_ENV = mode
   return {
     mode,
     entry: Object.assign(entries('./src/html/views'), {

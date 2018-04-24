@@ -1,2 +1,3 @@
 src/js/vendor/*
 webpack.config.js
+src/js/default.js

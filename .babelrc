@@ -1,12 +1,7 @@
 {
   "presets": [
     [
-      "env",
-      {
-        "uglify": true,
-        "modules": false,
-        "useBuiltIns": false
-      }
+      "es2017"
     ]
   ],
   "plugins": ["transform-runtime", "syntax-dynamic-import"],

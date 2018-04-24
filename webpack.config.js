@@ -42,8 +42,15 @@ function generateHtmlPlugins (templateDir) {
 const htmlPlugins = generateHtmlPlugins('./src/html/views')
 
 module.exports = (env, options) => {
-  const mode = options.env.mode
+  const _mode = options.env.mode
+  let mode = ''
+  if (_mode === 'simulation') {
+    mode = 'development'
+  } else {
+    mode = _mode
+  }
   const https = options.https
+  const publicPath = (_mode === 'production' || _mode === 'simulation') ? '../' : '/' 
   return {
     mode,
     entry: Object.assign(entries('./src/html/views'), {
@@ -51,9 +58,9 @@ module.exports = (env, options) => {
     }),
     output: {
       path: path.resolve(__dirname, './dist'),
-      filename: './js/[name].[chunkhash:8].js',
-      chunkFilename: './js/[name].chunk.[chunkhash:8].js',
-      publicPath: '/'
+      filename: 'js/[name].[chunkhash:8].js',
+      chunkFilename: 'js/[name].chunk.[chunkhash:8].js',
+      publicPath: publicPath
     },
     resolve: {
       alias: {
@@ -160,8 +167,8 @@ module.exports = (env, options) => {
       }),
       new webpack.DefinePlugin({
         'process.env': {
-          mode: JSON.stringify(mode),
-          NODE_ENV: JSON.stringify(mode),
+          mode: JSON.stringify(_mode),
+          NODE_ENV: JSON.stringify(_mode),
         },
       }),
       new webpack.optimize.SplitChunksPlugin({
@@ -184,8 +191,9 @@ module.exports = (env, options) => {
         }
       }),
       new ExtractTextPlugin({
-        filename: './css/[name].[hash:8].css',
-        allChunks: true
+        filename: 'css/[name].[hash:8].css',
+        allChunks: true,
+        publicPath: publicPath
       }),
       new OpenBrowserPlugin({
         url: https ? `https://localhost:${PORT}/webpack-dev-server` : `http://localhost:${PORT}/webpack-dev-server`

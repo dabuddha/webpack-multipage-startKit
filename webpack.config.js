@@ -50,7 +50,7 @@ module.exports = (env, options) => {
     mode = _mode
   }
   const https = options.https
-  const publicPath = (_mode === 'production' || _mode === 'simulation') ? '../' : '/' 
+  const publicPath = '/'
   return {
     mode,
     entry: Object.assign(entries('./src/html/views'), {

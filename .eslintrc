@@ -19,9 +19,13 @@
     }
   },
   "rules": {
+    "camelcase": "off",
+    "quote-props": "off",
     "import/extensions": "off",
     "import/no-unresolved": "off",
     "no-console": "off",
+    "max-len": "off",
+    "no-unused-vars": "off",
     "no-param-reassign": ["error", { "props": false }]
   }
 }

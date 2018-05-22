@@ -7,6 +7,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const OpenBrowserPlugin = require('open-browser-webpack-plugin')
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const PORT = 8686
 
 function entries (templateDir) {
@@ -21,6 +23,7 @@ function entries (templateDir) {
 }
 
 function generateHtmlPlugins (templateDir) {
+  const _entries = entries(templateDir)
   const templateFiles = glob.sync(path.resolve(__dirname, templateDir) + '/**/*.art')
   return templateFiles.map(filePath => {
     let filenName = filePath.substring(filePath.lastIndexOf('/') + 1, filePath.lastIndexOf('.'))
@@ -30,9 +33,9 @@ function generateHtmlPlugins (templateDir) {
       template: filePath,
       inject: 'body'
     }
-    if (name in entries(templateDir)) {
+    if (name in _entries) {
       conf.inject = 'body'
-      conf.chunks = ['common', 'vendor', 'basic', name]
+      conf.chunks = ['commons', 'vendors', 'basic', name]
       conf.chunksSortMode = 'manual'
     }
     return new HtmlWebpackPlugin(conf)
@@ -45,7 +48,7 @@ module.exports = (env, options) => {
   const _mode = options.env.mode
   let mode = ''
   if (_mode === 'simulation') {
-    mode = 'development'
+    mode = 'production'
   } else {
     mode = _mode
   }
@@ -54,11 +57,12 @@ module.exports = (env, options) => {
   return {
     mode,
     entry: Object.assign(entries('./src/html/views'), {
-      'basic': './src/js/default.js'
+      'basic': './src/js/default.js',
     }),
     output: {
+      pathinfo: false,
       path: path.resolve(__dirname, './dist'),
-      filename: 'js/[name].[chunkhash:8].js',
+      filename: 'js/[name].[hash:8].js',
       chunkFilename: 'js/[name].chunk.[chunkhash:8].js',
       publicPath: publicPath
     },
@@ -67,13 +71,51 @@ module.exports = (env, options) => {
         '@': path.resolve(__dirname, './src')
       }
     },
-    devtool: 'source-map',
+    devtool: _mode !== 'development' ? 'none' : 'cheap-module-eval-source-map',
+    parallelism: 8,
+    optimization: {
+      splitChunks: {
+        chunks: "all",
+        cacheGroups: {
+          commons: {
+            name: "commons",
+            chunks: "initial",
+            minChunks: 2
+          },
+          vendors: {
+            chunks: "initial",
+              name: "vendors",
+              test: /node_modules\//,
+              minChunks: 5,
+              priority: 10,
+          },
+          default: {
+              minChunks: 2,
+              priority: -20,
+              reuseExistingChunk: true
+          }
+        }
+      },
+    },
     module: {
       rules: [
         {
+          test: /\.vue$/,
+          loader: 'vue-loader',
+          options: {
+            extractCSS: true,
+            transformToRequire: {
+              video: ['src', 'poster'],
+              source: 'src',
+              img: 'src',
+              image: 'xlink:href'
+            }
+          }
+        },
+        {
           test: /\.js$/,
           include: path.resolve(__dirname, 'src'),
-          use: [
+          loaders: [
             {
               loader: 'babel-loader'
             },
@@ -85,11 +127,14 @@ module.exports = (env, options) => {
                 configFile: '.eslintrc'
               }
             }
-          ]
+          ],
         },
         {
           test: /\.css$/,
-          exclude: /node_modules/,
+          exclude: file => (
+            /node_modules/.test(file) &&
+            !/\.vue\.js/.test(file)
+          ),
           loader: ExtractTextPlugin.extract({
             fallback: 'style-loader',
             use: [{
@@ -162,7 +207,7 @@ module.exports = (env, options) => {
       new webpack.NoEmitOnErrorsPlugin(),
       new FriendlyErrorsWebpackPlugin({
         compilationSuccessInfo: {
-          messages: [https ? `Your website is running here: https://localhost:8080` : `Your website is running here: http://localhost:8080`]
+          messages: [https ? `Your website is running here: https://whiski-h5.lioil.me:8686` : `Your website is running here: http://whiski-h5.lioil.me:8686`]
         }
       }),
       new webpack.DefinePlugin({
@@ -171,59 +216,36 @@ module.exports = (env, options) => {
           NODE_ENV: JSON.stringify(_mode),
         },
       }),
-      new webpack.optimize.SplitChunksPlugin({
-        chunks: "async",
-        cacheGroups: {
-          commons: {
-            name: "commons",
-            chunks: "initial",
-            minChunks: 2
-          },
-          vendors: {
-              test: /[\\/]node_modules[\\/]/,
-              priority: -10
-          },
-          default: {
-              minChunks: 2,
-              priority: -20,
-              reuseExistingChunk: true
-          }
-        }
-      }),
+      new VueLoaderPlugin(),
       new ExtractTextPlugin({
         filename: 'css/[name].[hash:8].css',
         allChunks: true,
         publicPath: publicPath
       }),
-      new OpenBrowserPlugin({
-        url: https ? `https://localhost:${PORT}/webpack-dev-server` : `http://localhost:${PORT}/webpack-dev-server`
-      }),
+      // new OpenBrowserPlugin({
+      //   url: https ? `https://localhost:${PORT}/webpack-dev-server` : `http://localhost:${PORT}/webpack-dev-server`
+      // }),
       new CleanWebpackPlugin(['dist']),
       new CopyWebpackPlugin([
-        // {
-        //   from: './src/fonts',
-        //   to: './fonts'
-        // },
         {
           from: './src/favicon',
           to: './favicon'
         }
-        // {
-        //   from: './src/img',
-        //   to: './img'
-        // }
       ]),
+      new UglifyJsPlugin({
+        test: /\.js($|\?)/i,
+        sourceMap: false,
+      }),
       new webpack.ProvidePlugin({
-        $: 'jquery',
-        jQuery: 'jquery',
-        'window.jQuery': 'jquery',
-        'window.$': 'jquery'
+        $: 'jquery'
       })
     ].concat(htmlPlugins),
     devServer: {
+      host: "0.0.0.0",
       contentBase: path.join(__dirname, 'dist'),
       port: PORT,
-      quiet: true,
+      quiet: false,
+      disableHostCheck: true,
       overlay: {
         warnings: true,
         errors: true

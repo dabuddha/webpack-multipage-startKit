@@ -236,15 +236,12 @@ module.exports = (env, options) => {
         test: /\.js($|\?)/i,
         sourceMap: false,
       }),
-      new webpack.ProvidePlugin({
-        $: 'jquery'
-      })
     ].concat(htmlPlugins),
     devServer: {
       host: "0.0.0.0",
       contentBase: path.join(__dirname, 'dist'),
       port: PORT,
-      quiet: false,
+      quiet: true,
       disableHostCheck: true,
       overlay: {
         warnings: true,

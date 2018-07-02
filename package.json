@@ -15,7 +15,6 @@
   "dependencies": {
     "art-template": "^4.12.2",
     "file-loader": "^1.1.11",
-    "jquery": "^3.3.1",
     "normalize.css": "^8.0.0",
     "object-fit-images": "^3.2.3",
     "picturefill": "^3.0.2"

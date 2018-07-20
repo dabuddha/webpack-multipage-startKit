@@ -17,10 +17,11 @@
     "file-loader": "^1.1.11",
     "normalize.css": "^8.0.0",
     "object-fit-images": "^3.2.3",
-    "picturefill": "^3.0.2"
+    "picturefill": "^3.0.2",
+    "speed-measure-webpack-plugin": "^1.2.2",
+    "workbox-webpack-plugin": "^3.4.1"
   },
   "devDependencies": {
-    "file-loader": "^1.1.11",
     "art-template-loader": "^1.4.3",
     "autoprefixer": "^8.2.0",
     "babel-core": "^6.26.0",
@@ -45,6 +46,7 @@
     "eslint-plugin-promise": "^3.7.0",
     "eslint-plugin-standard": "^3.0.1",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "file-loader": "^1.1.11",
     "friendly-errors-webpack-plugin": "^1.6.1",
     "happypack": "^5.0.0",
     "html-cli": "^1.0.0",

@@ -6,10 +6,15 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const OpenBrowserPlugin = require('open-browser-webpack-plugin')
+const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const WorkboxPlugin = require('workbox-webpack-plugin')
 const PORT = 8686
+const publicPath = '/'
+
+const smp = new SpeedMeasurePlugin();
 
 function entries (templateDir) {
   const entriesFiles = glob.sync(path.resolve(__dirname, templateDir) + '/**/*.js')
@@ -44,6 +49,57 @@ function generateHtmlPlugins (templateDir) {
 
 const htmlPlugins = generateHtmlPlugins('./src/html/views')
 
+function getAllPlugins(_mode, https) {
+  let commons = [
+    new webpack.NoEmitOnErrorsPlugin(),
+    new FriendlyErrorsWebpackPlugin({
+      compilationSuccessInfo: {
+        messages: [https ? `Your website is running here: https://whiski-h5.lioil.me:8686` : `Your website is running here: http://whiski-h5.lioil.me:8686`]
+      }
+    }),
+    new webpack.DefinePlugin({
+      'process.env': {
+        mode: JSON.stringify(_mode),
+        NODE_ENV: JSON.stringify(_mode),
+      },
+    }),
+    new VueLoaderPlugin(),
+    new ExtractTextPlugin({
+      filename: 'css/[name].[hash:8].css',
+      allChunks: true,
+      publicPath: publicPath
+    }),
+    // new OpenBrowserPlugin({
+    //   url: https ? `https://localhost:${PORT}/webpack-dev-server` : `http://localhost:${PORT}/webpack-dev-server`
+    // }),
+    new CleanWebpackPlugin(['dist']),
+    new CopyWebpackPlugin([
+      {
+        from: './src/favicon',
+        to: './favicon'
+      }
+    ]),
+    new webpack.ProvidePlugin({
+      $: 'jquery'
+    }),
+  ].concat(htmlPlugins)
+  if (_mode !== 'development') {
+    commons.push(new UglifyJsPlugin({
+      test: /\.js($|\?)/i,
+      parallel: true,
+      sourceMap: false,
+    }))
+    commons.push(new WorkboxPlugin.GenerateSW({
+      // these options encourage the ServiceWorkers to get in there fast 
+      // and not allow any straggling "old" SWs to hang around
+      clientsClaim: true,
+      skipWaiting: true,
+      swDest: 'sw.js',
+    }))
+  }
+  return commons;
+}
+
 module.exports = (env, options) => {
   const _mode = options.env.mode
   let mode = ''
@@ -53,8 +109,7 @@ module.exports = (env, options) => {
     mode = _mode
   }
   const https = options.https
-  const publicPath = '/'
-  return {
+  return smp.wrap({
     mode,
     entry: Object.assign(entries('./src/html/views'), {
       'basic': './src/js/default.js',
@@ -71,7 +126,7 @@ module.exports = (env, options) => {
         '@': path.resolve(__dirname, './src')
       }
     },
-    devtool: _mode !== 'development' ? 'none' : 'cheap-module-eval-source-map',
+    devtool: _mode !== 'development' ? 'none' : 'eval-source-map',
     parallelism: 8,
     optimization: {
       splitChunks: {
@@ -117,7 +172,7 @@ module.exports = (env, options) => {
           include: path.resolve(__dirname, 'src'),
           loaders: [
             {
-              loader: 'babel-loader'
+              loader: 'babel-loader?cacheDirectory'
             },
             {
               loader: 'eslint-loader',
@@ -203,40 +258,7 @@ module.exports = (env, options) => {
         }
       ]
     },
-    plugins: [
-      new webpack.NoEmitOnErrorsPlugin(),
-      new FriendlyErrorsWebpackPlugin({
-        compilationSuccessInfo: {
-          messages: [https ? `Your website is running here: https://whiski-h5.lioil.me:8686` : `Your website is running here: http://whiski-h5.lioil.me:8686`]
-        }
-      }),
-      new webpack.DefinePlugin({
-        'process.env': {
-          mode: JSON.stringify(_mode),
-          NODE_ENV: JSON.stringify(_mode),
-        },
-      }),
-      new VueLoaderPlugin(),
-      new ExtractTextPlugin({
-        filename: 'css/[name].[hash:8].css',
-        allChunks: true,
-        publicPath: publicPath
-      }),
-      // new OpenBrowserPlugin({
-      //   url: https ? `https://localhost:${PORT}/webpack-dev-server` : `http://localhost:${PORT}/webpack-dev-server`
-      // }),
-      new CleanWebpackPlugin(['dist']),
-      new CopyWebpackPlugin([
-        {
-          from: './src/favicon',
-          to: './favicon'
-        }
-      ]),
-      new UglifyJsPlugin({
-        test: /\.js($|\?)/i,
-        sourceMap: false,
-      }),
-    ].concat(htmlPlugins),
+    plugins: getAllPlugins(_mode, https),
     devServer: {
       host: "0.0.0.0",
       contentBase: path.join(__dirname, 'dist'),
@@ -248,5 +270,5 @@ module.exports = (env, options) => {
         errors: true
       }
     }
-  }
+  })
 }
